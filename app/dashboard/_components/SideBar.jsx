@@ -37,7 +37,9 @@ function SideBar() {
 
       {/* Menu Items */}
       <div className="mt-3">
+        <Link href={'/create'}>
         <Button className="w-full">Create New</Button>
+        </Link>
         <div className="mt-5">
           {MenuList.map((menu, index) => (
             <Link key={index} href={menu.path} className="block">

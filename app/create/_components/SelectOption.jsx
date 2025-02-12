@@ -19,17 +19,18 @@ function SelectOption() {
             name: 'Coding Preparation',
             icon: '/programming.png'
         },
-        // {
-        //     name: 'content',
-        //     icon: '/content-strategy.png'
-        // },
         {
             name: 'Other',
             icon: '/open-book.png'
         }
     ];
 
-    const [selectedOption, setSelectedOption] = useState();
+    const [selectedOption, setSelectedOption] = useState(null);
+
+    const selectedStudyType = (studyType) => {
+        console.log("Selected Study Type:", studyType);
+        // Perform additional actions here, e.g., API calls, state updates, etc.
+    };
 
     return (
         <div>
@@ -39,11 +40,21 @@ function SelectOption() {
                     <div
                         key={index}
                         className={`p-4 mt-2 flex flex-col items-center justify-center border rounded-xl cursor-pointer
-                            hover:bg-gray-300 hover:border-primary ${option.name === selectedOption ? 'border-primary bg-gray-300' : ''}`}
-                        onClick={() => {setSelectedOption(option.name);selectedStudyType(option.name)}}
+                            hover:bg-gray-300 hover:border-primary transition-all duration-200
+                            ${option.name === selectedOption ? 'border-primary bg-gray-300' : ''}`}
+                        onClick={() => {
+                            setSelectedOption(option.name);
+                            selectedStudyType(option.name);
+                        }}
                     >
-                        <Image src={option.icon} alt={option.name} width={50} height={50} />
-                        <h2 className='text-sm mt-2'>{option.name}</h2>
+                        <Image
+                            src={option.icon}
+                            alt={`${option.name} icon`}
+                            width={50}
+                            height={50}
+                            className="object-contain"
+                        />
+                        <h2 className='text-sm mt-2 text-center'>{option.name}</h2>
                     </div>
                 ))}
             </div>
