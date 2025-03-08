@@ -1,36 +1,16 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 
-function SelectOption() {
+function SelectOption({ selectedStudyType }) {  // ✅ Receive function as a prop
     const Options = [
-        {
-            name: 'Exam',
-            icon: '/exam-time.png'
-        },
-        {
-            name: 'Job Interview',
-            icon: '/job.png'
-        },
-        {
-            name: 'Practice',
-            icon: '/practice.png'
-        },
-        {
-            name: 'Coding Preparation',
-            icon: '/programming.png'
-        },
-        {
-            name: 'Other',
-            icon: '/open-book.png'
-        }
+        { name: 'Exam', icon: '/exam-time.png' },
+        { name: 'Job Interview', icon: '/job.png' },
+        { name: 'Practice', icon: '/practice.png' },
+        { name: 'Coding Preparation', icon: '/programming.png' },
+        { name: 'Other', icon: '/open-book.png' }
     ];
 
-    const [selectedOption, setSelectedOption] = useState(null);
-
-    const selectedStudyType = (studyType) => {
-        console.log("Selected Study Type:", studyType);
-        // Perform additional actions here, e.g., API calls, state updates, etc.
-    };
+    const [selectedOption, setSelectedOption] = useState('');
 
     return (
         <div>
@@ -44,7 +24,7 @@ function SelectOption() {
                             ${option.name === selectedOption ? 'border-primary bg-gray-300' : ''}`}
                         onClick={() => {
                             setSelectedOption(option.name);
-                            selectedStudyType(option.name);
+                            selectedStudyType(option.name);  // ✅ Pass selected option to parent
                         }}
                     >
                         <Image

@@ -15,5 +15,6 @@ export const STUDY_MATERIAL_TABLE = pgTable("study_material", {
   difficultyLevel: varchar('difficulty_level', { length: 50 }).default('Easy').notNull(),
   courseLayout: json('course_layout'),
   createdBy: varchar('created_by', { length: 255 }).notNull(),
+  status: varchar().default('Generating').notNull(),
 });
 
