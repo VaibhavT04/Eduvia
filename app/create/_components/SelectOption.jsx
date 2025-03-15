@@ -12,6 +12,7 @@ function SelectOption({ selectedStudyType }) {  // ✅ Receive function as a pro
 
     const [selectedOption, setSelectedOption] = useState('');
 
+    
     return (
         <div>
             <h2 className="text-center mb-2 text-lg">For which you want to create your personal study material</h2>

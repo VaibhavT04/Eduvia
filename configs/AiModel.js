@@ -19,8 +19,8 @@ const generationConfig = {
   responseMimeType: "text/plain",
 };
 
-async function run() {
-  const chatSession = model.startChat({
+
+  export const courseOutlineAIModel = model.startChat({
     generationConfig,
     history: [
       {
@@ -28,7 +28,7 @@ async function run() {
         parts: [
           {text: "generate a study material for python for exam Exam and level of difficulty will be EASY with summery of course,List of Chapters along with summery for each chapter,Topic list in each chapter,All result in JSON format"},
         ],
-      },
+      }, 
       {
         role: "model",
         parts: [
@@ -40,6 +40,6 @@ async function run() {
 
   const result = await chatSession.sendMessage("INSERT_INPUT_HERE");
   console.log(result.response.text());
-}
+
 
 run();

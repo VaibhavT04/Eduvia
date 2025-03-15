@@ -17,7 +17,7 @@ export async function POST(req) {
         }
 
         // Generate the prompt for the AI model
-        const PROMPT = `Generate a study material for ${topic} for ${courseType} and level of difficulty will be ${difficultyLevel} with summary of course, List of Chapters along with summary for each chapter, Topic list in each chapter, All results in JSON format`;
+        const PROMPT = 'Generate a study material for'+ topic +' for ' +courseType+ ' and level of difficulty will be '+difficultyLevel+' with summary of course, List of Chapters along with summary for each chapter, Topic list in each chapter, All results in JSON format';
 
         // Call the AI model
         const aiResp = await courseOutlineAIModel.sendMessage(PROMPT);
