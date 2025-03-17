@@ -16,11 +16,20 @@ export async function POST(req) {
             );
         }
 
-        // Generate the prompt for the AI model
-        const PROMPT = 'Generate a study material for'+ topic +' for ' +courseType+ ' and level of difficulty will be '+difficultyLevel+' with summary of course, List of Chapters along with summary for each chapter, Topic list in each chapter, All results in JSON format';
+        // Generate the prompt for the AI model - Add spaces for better prompt formatting
+        const PROMPT = 'Generate a study material for ' + topic + ' for ' + courseType + 
+                      ' and level of difficulty will be ' + difficultyLevel + 
+                      ' with summary of course, List of Chapters along with summary for each chapter, Topic list in each chapter, All results in JSON format';
 
         // Call the AI model
         const aiResp = await courseOutlineAIModel.sendMessage(PROMPT);
+        
+        if (!aiResp || !aiResp.response) {
+            return NextResponse.json(
+                { success: false, message: "Failed to get response from AI model" },
+                { status: 500 }
+            );
+        }
 
         // Validate and parse the AI response
         let aiResult;
@@ -42,9 +51,17 @@ export async function POST(req) {
                 courseType: courseType,
                 createdBy: createdBy,
                 topic: topic,
+                difficultyLevel: difficultyLevel, // Adding difficultyLevel to the database record
                 courseLayout: aiResult,
             })
             .returning({ resp: STUDY_MATERIAL_TABLE });
+
+        if (!dbResult || dbResult.length === 0) {
+            return NextResponse.json(
+                { success: false, message: "Failed to insert data into database" },
+                { status: 500 }
+            );
+        }
 
         console.log("Database insertion result:", dbResult);
 
@@ -53,7 +70,7 @@ export async function POST(req) {
     } catch (error) {
         console.error("Server Error:", error);
         return NextResponse.json(
-            { success: false, message: "Internal Server Error" },
+            { success: false, message: "Internal Server Error", error: error.message },
             { status: 500 }
         );
     }

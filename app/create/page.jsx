@@ -1,7 +1,7 @@
 "use client"
 import { Button } from '@/components/ui/button';
 import SelectOption from './_components/SelectOption';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TopicInput from './_components/TopicInput';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
@@ -17,16 +17,34 @@ function Create() {
         difficultyLevel: ''
     });
     const [error, setError] = useState('');
-    const { user } = useUser();
+    const [success, setSuccess] = useState('');
+    const { user, isLoaded: userLoaded } = useUser();
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
+    // Load form data from localStorage if available
+    useEffect(() => {
+        const savedData = localStorage.getItem('courseOutlineFormData');
+        if (savedData) {
+            try {
+                const parsed = JSON.parse(savedData);
+                setFormData(parsed);
+            } catch (e) {
+                console.error("Failed to parse saved form data");
+            }
+        }
+    }, []);
+
+    // Save form data to localStorage whenever it changes
+    useEffect(() => {
+        localStorage.setItem('courseOutlineFormData', JSON.stringify(formData));
+    }, [formData]);
+
     const handleUserInput = (fieldName, fieldValue) => {
         setError(''); // Clear any existing errors
+        setSuccess(''); // Clear any existing success messages
         setFormData(prev => {
             const updatedData = { ...prev, [fieldName]: fieldValue };
-            console.log(`Updated ${fieldName}:`, fieldValue);
-            console.log("Current Form Data:", updatedData);
             return updatedData;
         });
     };
@@ -36,6 +54,18 @@ function Create() {
             setError('Please select a study type to continue');
             return false;
         }
+        
+        if (step === 1) {
+            if (!formData.topic || formData.topic.trim().length < 3) {
+                setError('Please enter a valid topic (minimum 3 characters)');
+                return false;
+            }
+            if (!formData.difficultyLevel) {
+                setError('Please select a difficulty level');
+                return false;
+            }
+        }
+        
         return true;
     };
 
@@ -45,32 +75,63 @@ function Create() {
         }
     };
 
+    const handlePrevious = () => {
+        setStep(step - 1);
+    };
+
     const GenerateCourseOutline = async () => {
-        if (!formData.studyType || !formData.topic || !formData.difficultyLevel) {
-            setError('Please fill in all required fields before generating the course outline.');
+        if (!validateStep()) {
+            return;
+        }
+
+        if (!userLoaded || !user) {
+            setError('Please sign in to generate a course outline');
             return;
         }
 
         const courseId = uuidv4();
         setLoading(true);
         setError('');
+        setSuccess('');
 
+        const controller = new AbortController();
         try {
-            const result = await axios.post('/api/generate-course-outline', {
+            const result = await axios.post('/api/study-material', {
                 courseId,
-                ...formData,
-                createdBy: user?.primaryEmailAddress?.emailAddress,
+                topic: formData.topic.trim(),
+                courseType: formData.studyType,
+                difficultyLevel: formData.difficultyLevel,
+                createdBy: user.primaryEmailAddress?.emailAddress || user.id,
+            }, {
+                signal: controller.signal
             });
 
-            console.log("API Response:", result.data?.result?.resp);
-            router.replace('/dashboard');
+            if (result.data?.success) {
+                setSuccess('Your course outline has been generated successfully!');
+                // Clear saved form data
+                localStorage.removeItem('courseOutlineFormData');
+                // Redirect after a slight delay to show success message
+                setTimeout(() => {
+                    router.push('/dashboard');
+                }, 1500);
+            } else {
+                throw new Error(result.data?.message || "Failed to generate course outline");
+            }
         } catch (error) {
+            if (error.name === 'AbortError') {
+                return; // Request was cancelled, don't show error
+            }
+            
             const errorMessage = error.response?.data?.message || error.message || 'Failed to generate course outline';
             setError(errorMessage);
             console.error("Error generating course outline:", errorMessage);
         } finally {
             setLoading(false);
         }
+
+        return () => {
+            controller.abort();
+        };
     };
 
     return (
@@ -79,25 +140,43 @@ function Create() {
             <p className="text-gray-500">Fill all details in order to generate study material for your next project</p>
 
             {error && (
-                <div className="w-full mt-4 p-4 text-red-500 bg-red-50 rounded-md border border-red-200">
+                <div className="w-full mt-4 p-4 text-red-500 bg-red-50 rounded-md border border-red-200" role="alert">
                     {error}
                 </div>
             )}
 
-            <div className='mt-10'>
+            {success && (
+                <div className="w-full mt-4 p-4 text-green-500 bg-green-50 rounded-md border border-green-200" role="alert">
+                    {success}
+                </div>
+            )}
+
+            <div className='mt-10 w-full'>
                 {step === 0 ? (
-                    <SelectOption selectedStudyType={(value) => handleUserInput('studyType', value)} />
+                    <SelectOption 
+                        selectedStudyType={(value) => handleUserInput('studyType', value)} 
+                        initialValue={formData.studyType}
+                    />
                 ) : (
                     <TopicInput
                         setTopic={(value) => handleUserInput('topic', value)}
                         setDifficultyLevel={(value) => handleUserInput('difficultyLevel', value)}
+                        initialTopic={formData.topic}
+                        initialDifficulty={formData.difficultyLevel}
                     />
                 )}
             </div>
 
             <div className="flex justify-between w-full mt-32">
                 {step !== 0 ? (
-                    <Button variant="outline" onClick={() => setStep(step - 1)}>Previous</Button>
+                    <Button 
+                        variant="outline" 
+                        onClick={handlePrevious}
+                        disabled={loading}
+                        aria-label="Go to previous step"
+                    >
+                        Previous
+                    </Button>
                 ) : (
                     <div className="invisible">
                         <Button variant="outline">Previous</Button>
@@ -105,12 +184,19 @@ function Create() {
                 )}
                 
                 {step === 0 ? (
-                    <Button onClick={handleNext}>Next</Button>
+                    <Button 
+                        onClick={handleNext}
+                        aria-label="Go to next step"
+                    >
+                        Next
+                    </Button>
                 ) : (
                     <Button 
                         onClick={GenerateCourseOutline} 
-                        disabled={loading}
+                        disabled={loading || !userLoaded}
                         className={loading ? 'cursor-not-allowed' : ''}
+                        aria-busy={loading}
+                        aria-label="Generate course outline"
                     >
                         {loading && <Loader className='animate-spin mr-2' />}
                         {loading ? 'Generating...' : 'Generate'}
