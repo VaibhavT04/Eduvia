@@ -3,8 +3,8 @@ import { defineConfig } from "drizzle-kit";
 export default defineConfig({
   dialect: "postgresql",
   schema: "./configs/schema.js",
-  dbCredentials:{
-    url:'ostgresql://neondb_owner:npg_w38ZYdhzISmL@ep-lingering-salad-a8l51swm-pooler.eastus2.azure.neon.tech/ai-study-material?sslmode=require'
-
-  }
+  out: "./drizzle", // Migration files ke liye folder
+  dbCredentials: {
+    url: process.env.NEXT_PUBLIC_DATABASE_CONNECTION_STRING, // .env se connection string
+  },
 });

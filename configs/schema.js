@@ -2,7 +2,7 @@ import {json, boolean, pgTable, serial, varchar } from "drizzle-orm/pg-core";
 
 export const USER_TABLE = pgTable("users", {
   id: serial().primaryKey(),
-  name: varchar().notNull(),
+  name: varchar(),
   email: varchar().notNull().unique(),
   isMember: boolean().default(false),
 });
