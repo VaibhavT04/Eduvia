@@ -3,6 +3,7 @@ import { db } from "@/configs/db";
 import { STUDY_MATERIAL_TABLE } from "@/configs/schema";
 import { NextResponse } from "next/server";
 
+let aiResult;
 // Type validation helper (optional, if using TypeScript or strict checks)
 const isValidInput = (obj) => {
   return obj && typeof obj === "object" && 
