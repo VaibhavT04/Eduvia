@@ -1,4 +1,4 @@
-import { inngest } from "./client";
+import { inngest } from "@/inngest/client";
 import { db } from "@/configs/db";
 import { USER_TABLE } from "@/configs/schema";
 
