@@ -1,41 +1,26 @@
 "use client";
-import { db } from '@/configs/db';
-import { USER_TABLE } from '@/configs/schema';
 import { useUser } from '@clerk/nextjs'
-import { eq } from 'drizzle-orm';
 import React, { useEffect } from 'react'
-import axios from 'axios';
+import { createOrGetUser } from './actions/user'
 
 function Provider({children}) {
-
     const {user} = useUser();
 
     useEffect(() => {
-        if(user){
-            CheckIsNewUser();
+        if (user) {
+            const userData = {
+                name: user.fullName,
+                email: user.primaryEmailAddress?.emailAddress
+            };
+            createOrGetUser(userData).catch(console.error);
         }
-    }, [user])
+    }, [user]);
 
-    const CheckIsNewUser = async() => {
-        // const result = await db.select().from(USER_TABLE).where(eq(USER_TABLE.email, user?.primaryEmailAddress.emailAddress));
-        // console.log(result);
-        // if(result?.length == 0){
-        //     // console.log('New User');
-        //     const userResp = await db.insert(USER_TABLE).values({
-        //         name:user?.fullName,
-        //         email:user?.primaryEmailAddress?.emailAddress
-        //     }).returning({id:USER_TABLE.id});
-        // }
-        // const resp = await axios.post('/api/create-user',{user:user});
-        // console.log(resp.data);
-
-    }
-
-  return (
-    <div>
-      {children}
-    </div>
-  )
+    return (
+        <div>
+            {children}
+        </div>
+    );
 }
 
-export default Provider
+export default Provider;

@@ -24,3 +24,4 @@ export const CHAPTER_NOTES_TABLE = pgTable('chapterNotes',{
   chapterId: integer().notNull(),
   notes:text()
 });
+

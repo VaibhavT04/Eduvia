@@ -2,6 +2,7 @@ import { courseOutlineAIModel } from "@/configs/AiModel";
 import { db } from "@/configs/db";
 import { STUDY_MATERIAL_TABLE } from "@/configs/schema";
 import { NextResponse } from "next/server";
+import { inngest } from "@/inngest/client";
 
 let aiResult;
 // Type validation helper (optional, if using TypeScript or strict checks)
@@ -133,10 +134,25 @@ export async function POST(req) {
 
       console.log("Database insertion successful:", dbResult);
 
+      // Send event to Inngest
+      const inngestEvent = await inngest.send({
+        name: "notes.generate",
+        data: {
+          course: dbResult[0]
+        }
+      });
+      console.log("Inngest event sent:", inngestEvent);
+
       // Return the result
       return NextResponse.json({ success: true, result: dbResult[0] }, { status: 200 });
     } catch (dbError) {
-      console.error("Database Error:", dbError);
+      console.error("Database Error Details:", {
+        message: dbError.message,
+        code: dbError.code,
+        detail: dbError.detail,
+        hint: dbError.hint,
+        stack: dbError.stack
+      });
       return NextResponse.json(
         { success: false, message: "Database error", details: dbError.message },
         { status: 500 }
