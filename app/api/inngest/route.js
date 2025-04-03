@@ -4,7 +4,7 @@ import { helloWorld, CreateNewUser, GenerateNotes } from "@/inngest/functions";
 
 
 // Create an API that serves Inngest functions
-export const { GET, POST, PUT } = serve({
+export const { GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS } = serve({
   client: inngest,
   functions: [
     helloWorld,

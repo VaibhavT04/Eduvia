@@ -112,17 +112,31 @@ export async function POST(req) {
 
     // Insert the result into the database
     try {
+      // Convert aiResult to a string if it's an object
+      const courseLayoutData = typeof aiResult === 'object' 
+        ? JSON.stringify(aiResult) 
+        : aiResult;
+      
+      console.log("Inserting course layout data type:", typeof courseLayoutData);
+      console.log("Course layout data length:", courseLayoutData.length);
+      
+      // Ensure all required fields are present and properly formatted
+      const insertData = {
+        courseId,
+        courseType,
+        createdBy,
+        topic,
+        difficultyLevel,
+        courseLayout: courseLayoutData,
+        status: "Generating" // Ensure status is set
+      };
+      
+      console.log("Inserting data:", JSON.stringify(insertData, null, 2).substring(0, 200) + "...");
+      
       const dbResult = await db
         .insert(STUDY_MATERIAL_TABLE)
-        .values({
-          courseId,
-          courseType,
-          createdBy,
-          topic,
-          difficultyLevel,
-          courseLayout: aiResult,
-        })
-        .returning({ resp: STUDY_MATERIAL_TABLE });
+        .values(insertData)
+        .returning();
 
       if (!dbResult || dbResult.length === 0) {
         console.error("Database Insertion Failed:", dbResult);
@@ -138,7 +152,9 @@ export async function POST(req) {
       const inngestEvent = await inngest.send({
         name: "notes.generate",
         data: {
-          course: dbResult[0]
+          course: {
+            resp: dbResult[0]
+          }
         }
       });
       console.log("Inngest event sent:", inngestEvent);

@@ -54,7 +54,17 @@ export const GenerateNotes = inngest.createFunction(
     const { course } = event.data;
     
     // Get the course layout from the nested structure
-    const courseLayout = course.resp.courseLayout;
+    let courseLayout = course.resp.courseLayout;
+    
+    // Parse the courseLayout if it's a string
+    if (typeof courseLayout === 'string') {
+      try {
+        courseLayout = JSON.parse(courseLayout);
+      } catch (error) {
+        console.error("Failed to parse courseLayout:", error);
+        throw new Error("Invalid courseLayout format");
+      }
+    }
     
     console.log("Processing course layout:", courseLayout);
     

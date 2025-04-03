@@ -123,10 +123,22 @@ function Create() {
       }
     } catch (error) {
       if (error.name === "AbortError") return; // Ignore aborted requests
+      
+      // Extract detailed error information
+      const errorDetails = error.response?.data?.details || "";
       const errorMessage =
         error.response?.data?.message || error.message || "Failed to generate course outline";
-      setError(errorMessage);
-      console.error("Error generating course outline:", errorMessage);
+      
+      // Log detailed error information
+      console.error("Error generating course outline:", {
+        message: errorMessage,
+        details: errorDetails,
+        status: error.response?.status,
+        data: error.response?.data
+      });
+      
+      // Set user-friendly error message
+      setError(errorMessage + (errorDetails ? `: ${errorDetails}` : ""));
     } finally {
       setLoading(false);
     }
