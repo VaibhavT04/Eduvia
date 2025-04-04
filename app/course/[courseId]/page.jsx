@@ -77,7 +77,7 @@ function Course() {
 
                 {/* Study Material Options */}
 
-                <StudyMaterialSection/>
+                <StudyMaterialSection courseId={courseId}/>
 
                 {/* Chapter lists */}
             </div>

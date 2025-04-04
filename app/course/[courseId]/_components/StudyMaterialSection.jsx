@@ -1,7 +1,8 @@
 import React from 'react'
 import MaterialCardItem from './MaterialCardItem'
 
-function StudyMaterialSection() {
+function StudyMaterialSection(courseId) {
+    const[studyTypeContent,setStudyTypeContent]=useState();
     const MaterialList=[
         {
             name:'Notes/Chapters',
@@ -28,7 +29,14 @@ function StudyMaterialSection() {
             path:'/qa'
         }
     ]
-
+const GetStudyMaterial=async()=>{
+    const result=await axios.post('/api/study-type',{
+        courseId:courseId,
+        studyType:'ALL'
+    })
+    console.result(result?.data);
+    setStudyTypeContent(result.data)
+}
 
 
   return (
