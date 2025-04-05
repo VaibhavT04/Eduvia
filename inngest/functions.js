@@ -79,14 +79,7 @@ export const GenerateNotes = inngest.createFunction(
       const chapterId = i + 1; // Use numeric ID starting from 1
       
       // Generate notes for this chapter
-      const PROMPT = `
-        Generate detailed study notes for the following chapter:
-        Title: ${chapter.chapterTitle}
-        Summary: ${chapter.chapterSummary}
-        Topics: ${chapter.topics.join(', ')}
-        
-        Please provide comprehensive notes covering all topics in this chapter.
-      `;
+      const PROMPT = `Generate exam material detail content for each chapter , Make sure to includes all topic point in the content, make sure to give content in HTML format (Do not Add HTMLK , Head, Body, title tag), The chapters`+JSON.stringify(chapter);
       
       const notes = await step.run(
         `generate-notes-chapter-${chapterId}`,

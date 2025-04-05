@@ -1,4 +1,7 @@
 import React from 'react'
+import { useState } from 'react'
+import axios from 'axios'
+import { useParams } from 'next/navigation'
 import MaterialCardItem from './MaterialCardItem'
 
 function StudyMaterialSection(courseId) {
@@ -44,7 +47,9 @@ const GetStudyMaterial=async()=>{
         <h2 className='text-xl font-medium'>Study Material</h2>
         <div className='grid grid-cols-2 md:grid-cols-4 gap-5 mt-5'>
             {MaterialList.map((item, index)=>(
-                <MaterialCardItem item={item}/>
+                <MaterialCardItem item={item} key={index}
+                    studyTypeContent={studyTypeContent}
+                />
             ))}
         </div>
     </div>
