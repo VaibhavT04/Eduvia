@@ -81,5 +81,28 @@ async function run() {
   }
 }
 
+export const GenerateStudyTypeContentAiModel = model.startChat({
+  generationConfig,
+  history:[
+    {
+      role: "user",
+      parts:[
+        { text: 'Generate the Flashcard on topic: Flutter fundamentals ,User Interface(UI) Development, Basic app nevigation in JSON format with front back content ,maximum 15questions' },
+      ]
+    },
+    {
+      role: 'model',
+      parts: [
+        { text: '```json\n[\n  {\n    "front": "What is Flutter?",\n    "back": "Flutter is Google\'s UI toolkit for building natively compiled applications for mobile, web, and desktop from a single codebase."\n  },\n  {\n    "front": "What are Widgets in Flutter?",\n    "back": "Widgets are the fundamental building blocks of Flutter UI. Everything in a Flutter app is a widget, including text, images, buttons, and layouts."\n  },\n  {\n    "front": "Explain the difference between StatelessWidget and StatefulWidget.",\n    "back": "StatelessWidget:  A widget that doesn\'t change after it\'s built. StatefulWidget: A widget that can change its state over time, requiring rebuilding."\n  },\n  {\n    "front": "Name three common layout widgets in Flutter.",\n    "back": "Row, Column, and Stack are common layout widgets."\n  },\n  {\n    "front": "What is the purpose of a `BuildContext`?",\n    "back": "BuildContext provides information about the widget\'s location within the widget tree.  It\'s used to access the theme, context, and other information."\n  },\n  {\n    "front": "How do you navigate between screens in Flutter?",\n    "back": "Using `Navigator.push()` to push a new route onto the navigation stack and `Navigator.pop()` to remove the top route."\n  },\n  {\n    "front": "What is a `Route` in Flutter navigation?",\n    "back": "A `Route` represents a single screen or page in an application\'s navigation stack."\n  },\n  {\n    "front": "What is the role of `MaterialApp`?",\n    "back": "`MaterialApp` is a widget that provides a Material Design implementation for your application, including themes and navigation."\n  },\n  {\n    "front": "How do you pass data between screens using navigation?",\n    "back": "Using arguments within `Navigator.push()` (e.g., `Navigator.pushNamed(context, \'/screen2\', arguments: data)`)."\n  },\n  {\n    "front": "What is the difference between `push` and `pushReplacementNamed`?",\n    "back": "`push` adds a new route to the stack. `pushReplacementNamed` removes the current route and replaces it with the new one."\n  },\n  {\n    "front": "How to define a route in MaterialApp?",\n    "back": "Using the `routes` property in `MaterialApp` to map route names to widget builders (e.g., `routes: {\'/screen2\': (context) => ScreenTwo()}`)."\n  },\n  {\n    "front": "What is a Key in Flutter?",\n    "back": "A `Key` is used to uniquely identify a widget in the widget tree, particularly useful for managing state and animations in Stateful widgets."\n  },\n  {\n    "front": "What is `Scaffold` widget?",\n    "back": "Scaffold provides a basic visual layout structure for an app, including an AppBar, body, and bottom navigation bar."\n  },\n  {\n    "front": "What is a `FutureBuilder`?",\n    "back": "A `FutureBuilder` is a widget that builds itself based on the result of an asynchronous operation (Future)."\n  },\n  {\n    "front": "Explain the concept of the Widget Tree",\n    "back": "The Widget Tree is a hierarchical representation of all widgets in a Flutter application.  It dictates how widgets are laid out and rendered on the screen."\n  }\n]\n```\n' },
+      ],
+    },
+    {
+      role: 'user',
+      parts: [
+        { text: 'INSERT_INPUT_HERE' },
+      ],
+    },
+  ]
+})
 // Call the run function
 run();

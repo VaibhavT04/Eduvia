@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation';
 import axios from 'axios';  
 import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 function ViewNotes() {
     const {courseId} = useParams();
@@ -10,6 +11,7 @@ function ViewNotes() {
     const [stepCount, setStepCount] = useState(0);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const route = useRouter();
 
     useEffect(() => {
         GetNotes();
@@ -86,6 +88,11 @@ function ViewNotes() {
                         __html: formatContent(notes[stepCount]?.notes)
                     }} 
                 />
+                {notes?.length==stepCount&&<div className='flex items-center gap-10 flex-col justify-center'>
+
+                    <h2>End of Notes</h2>
+                    <Button onClick={()=>route.back()}>Go to Course</Button>
+                </div>}
             </div>
         </div>
     )
