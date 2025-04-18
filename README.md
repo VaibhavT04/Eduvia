@@ -34,6 +34,16 @@ Once the server is running, open:
 
 ---
 
+**Run Drizzle-ORM**
+```bash
+npx drizzle-kit studio
+```
+
+**Run Inggest**
+```bash
+npx inggest@cli dev
+```
+
 ## 🛠 Additional Commands
 
 ### 🔄 Restart the Server
