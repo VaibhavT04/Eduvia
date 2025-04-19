@@ -46,15 +46,21 @@ function StudyMaterialSection({ courseId, course }) {
         }
     }
 
+    React.useEffect(() => {
+        if (courseId) {
+            GetStudyMaterial();
+        }
+    }, [courseId]);
+
     return (
-        <div className='mt-5'>
-            <h2 className='text-xl font-medium'>Study Material</h2>
-            <div className='grid grid-cols-2 md:grid-cols-4 gap-5 mt-5'>
+        <div className='mt-8'>
+            <h2 className='text-[20px] font-medium'>Study Materials</h2>
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mt-4 gap-5'>
                 {MaterialList.map((item, index) => (
-                    <MaterialCardItem 
-                        item={item} 
+                    <MaterialCardItem
                         key={index}
-                        studyTypeContent={studyTypeContent}
+                        item={item}
+                        studyTypeContent={studyTypeContent?.data}
                         course={course}
                         refreshData={GetStudyMaterial}
                     />

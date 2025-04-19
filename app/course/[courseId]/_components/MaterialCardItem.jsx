@@ -59,6 +59,8 @@ function MaterialCardItem({item, studyTypeContent, course, refreshData}) {
       if (result.data?.success) {
         if (item.name === 'Notes/Chapters') {
           toast('Your notes are being generated. This may take a few moments.');
+        } else if (item.name === 'Quiz') {
+          toast('Your quiz is being generated. Please wait a moment.');
         } else {
           toast('Your content is being generated. Please wait a moment.');
         }
@@ -80,6 +82,13 @@ function MaterialCardItem({item, studyTypeContent, course, refreshData}) {
     }
   }
 
+  const getContentLength = () => {
+    if (!studyTypeContent || !item.type) return null;
+    const content = studyTypeContent[item.type];
+    if (!content) return null;
+    return Array.isArray(content) ? content.length : null;
+  };
+
   return (
     <Link href={'/course/' + course?.courseId + item.path}>
       <div className='border shadow-md rounded-lg p-5 flex flex-col items-center'>
@@ -88,7 +97,7 @@ function MaterialCardItem({item, studyTypeContent, course, refreshData}) {
         <h2 className='text-lg font-medium mt-3'>{item.name}</h2>
         <p className='mt-2 text-md text-gray-500 text-center'>{item.desc}</p>
 
-        {studyTypeContent?.[item.type]?.Length == null ? (
+        {getContentLength() === null ? (
           <Button className='mt-4 w-full' variant={'outline'} onClick={(e) => {
             e.preventDefault();
             GenerateContent();

@@ -48,12 +48,18 @@ export async function POST(req) {
                         }
                     }
                 });
-            } else if (type === 'Flashcard') {
+            } else if (type === 'Flashcard' || type === 'Quiz') {
+                const promptPrefix = type === 'Quiz' 
+                    ? 'Generate quiz questions on topic: '
+                    : 'Generate the flashcard on topic: ';
+                
                 await inngest.send({
                     name: 'studyType.content',
                     data: {
                         studyType: type,
-                        prompt: 'Generate the flashcard on topic: ' + chapters + ' in JSON format with front back content Maximum 15',
+                        prompt: promptPrefix + chapters + (type === 'Quiz' 
+                            ? ' in JSON format with question, options array, correctAnswer, and explanation. Maximum 10 questions'
+                            : ' in JSON format with front back content Maximum 15'),
                         courseId: courseId,
                         recordId: result[0].id
                     }
