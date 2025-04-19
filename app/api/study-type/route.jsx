@@ -46,6 +46,14 @@ export async function POST(req){
                 data: notes
             });
         }
+
+        else{
+            const notes = await db.select().from(STUDY_TYPE_CONTENT_TABLE)
+                .where(and( eq(STUDY_TYPE_CONTENT_TABLE?.courseId, courseId),eq(STUDY_TYPE_CONTENT_TABLE.type,studyType)));
+
+                return NextResponse.json(notes);
+
+        }
         
         // For other study types, return empty arrays for now
         return NextResponse.json({
