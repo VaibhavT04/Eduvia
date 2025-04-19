@@ -1,0 +1,35 @@
+/* 3D card flip styles */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.transform-style-preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+/* Animation classes */
+.transition-transform {
+  transition-property: transform;
+}
+
+.duration-500 {
+  transition-duration: 500ms;
+}
+
+/* Card hover effect */
+.flashcard:hover {
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Progress bar animation */
+.progress-bar {
+  transition: width 0.3s ease-in-out;
+} 

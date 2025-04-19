@@ -116,27 +116,77 @@ export const GenerateNotes = inngest.createFunction(
 
 //use to generate Flash Cards
 export const GenerateStudyTypeContent = inngest.createFunction(
-  {id:'Generate Study Type Content'},
-  {event:'studyType.content'},
+  { 
+    name: "Generate Study Type Content",
+    id: "generate-study-type-content"
+  },
+  { event: "studyType.content" },
+  async ({ event, step }) => {
+    const { studyType, prompt, courseId, recordId } = event.data;
 
-  async({event, step})=>{
-    const {studyType, prompt, courseId,recordId} = event.data;
+    const FlashcardAiResult = await step.run('Generating Flash card using AI', async () => {
+      try {
+        const result = await GenerateStudyTypeContentAiModel.sendMessage(prompt);
+        console.log('Raw AI Response:', result); // Debug log
+        
+        let parsedResult;
+        try {
+          // Get the text content from the response
+          const responseText = result.response.text();
+          console.log('Response Text:', responseText);
+          
+          // Remove JSON code block markers if present
+          const cleanJson = responseText.replace(/```json\n|\n```/g, '');
+          console.log('Cleaned JSON:', cleanJson);
+          
+          // Parse the JSON content
+          parsedResult = JSON.parse(cleanJson);
+          console.log('Parsed Result:', parsedResult);
+          
+          if (!Array.isArray(parsedResult)) {
+            throw new Error('Expected array of flashcards');
+          }
 
-    const FlashcardAiResult = await step.run('Generating Flash card using AI',async()=>{
-      const result = GenerateStudyTypeContentAiModel.sendMessage(prompt);
-      const AIResult = JSON.parse(result.response.text());
-      return AIResult
-    })
+          return parsedResult;
+        } catch (parseError) {
+          console.error('Failed to parse AI response:', parseError);
+          throw new Error('Failed to parse AI response: ' + parseError.message);
+        }
+      } catch (error) {
+        console.error('AI Generation Error:', error);
+        throw error;
+      }
+    });
 
-    //save the Result
-    const DbResult = await step.run('Save Result to DB',async()=>{
-      const result = await db.update(STUDY_TYPE_CONTENT_TABLE)
-      .set({
-        content:FlashcardAiResult,
-        status: 'Ready'
-      }).where(eq(STUDY_TYPE_CONTENT_TABLE.id,recordId))
+    const DbResult = await step.run('Save Result to DB', async () => {
+      try {
+        if (!FlashcardAiResult) {
+          throw new Error('No content to save to database');
+        }
 
-      return 'Data Inserted'
-    })
+        // Update the record with the generated content
+        const result = await db.update(STUDY_TYPE_CONTENT_TABLE)
+          .set({
+            content: FlashcardAiResult
+          })
+          .where(eq(STUDY_TYPE_CONTENT_TABLE.id, recordId))
+          .returning();
+
+        if (!result || result.length === 0) {
+          throw new Error('Failed to update database record');
+        }
+
+        return { success: true, message: 'Data saved successfully' };
+      } catch (error) {
+        console.error('Database Update Error:', error);
+        throw error;
+      }
+    });
+
+    return { 
+      success: true, 
+      message: 'Content generated and saved successfully',
+      recordId: recordId
+    };
   }
-)
+);

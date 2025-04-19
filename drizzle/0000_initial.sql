@@ -7,4 +7,12 @@ CREATE TABLE IF NOT EXISTS "study_material" (
   "course_layout" JSONB,
   "created_by" VARCHAR(255) NOT NULL,
   "status" VARCHAR NOT NULL DEFAULT 'Generating'
+);
+
+CREATE TABLE IF NOT EXISTS "study_type_content" (
+    "id" SERIAL PRIMARY KEY,
+    "course_id" VARCHAR(255) NOT NULL,
+    "content" JSONB,
+    "type" VARCHAR(255) NOT NULL,
+    "status" VARCHAR(255) DEFAULT 'Generating'
 ); 
