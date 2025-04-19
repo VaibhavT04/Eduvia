@@ -76,7 +76,7 @@ function Course() {
 
                 {/* Study Material Options */}
 
-                <StudyMaterialSection courseId={courseId}/>
+                <StudyMaterialSection courseId={courseId} course={course}/>
 
                 {/* Chapter lists */}
 

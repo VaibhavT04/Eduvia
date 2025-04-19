@@ -1,6 +1,6 @@
 import { inngest } from "@/inngest/client";
 import { db } from "@/configs/db";
-import { CHAPTER_NOTES_TABLE, STUDY_MATERIAL_TABLE, USER_TABLE } from "@/configs/schema";
+import { CHAPTER_NOTES_TABLE, STUDY_MATERIAL_TABLE, STUDY_TYPE_CONTENT_TABLE, USER_TABLE } from "@/configs/schema";
 import { eq } from "drizzle-orm";
 import { courseOutlineAIModel, GenerateStudyTypeContentAiModel } from "@/configs/AiModel";
 
@@ -120,7 +120,7 @@ export const GenerateStudyTypeContent = inngest.createFunction(
   {event:'studyType.content'},
 
   async({event, step})=>{
-    const {studyType, prompt, courseId} = event.data;
+    const {studyType, prompt, courseId,recordId} = event.data;
 
     const FlashcardAiResult = await step.run('Generating Flash card using AI',async()=>{
       const result = GenerateStudyTypeContentAiModel.sendMessage(prompt);
@@ -130,12 +130,11 @@ export const GenerateStudyTypeContent = inngest.createFunction(
 
     //save the Result
     const DbResult = await step.run('Save Result to DB',async()=>{
-      const result = await db.insert(STUDY_TYPE_CONTENT_TABLE)
-      .values({
-        courseId:courseId,
-        type:studyType,
-        content:FlashcardAiResult
-      })
+      const result = await db.update(STUDY_TYPE_CONTENT_TABLE)
+      .set({
+        content:FlashcardAiResult,
+        status: 'Ready'
+      }).where(eq(STUDY_TYPE_CONTENT_TABLE.id,recordId))
 
       return 'Data Inserted'
     })

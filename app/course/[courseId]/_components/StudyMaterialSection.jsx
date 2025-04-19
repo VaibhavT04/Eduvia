@@ -4,7 +4,7 @@ import axios from 'axios'
 import { useParams } from 'next/navigation'
 import MaterialCardItem from './MaterialCardItem'
 
-function StudyMaterialSection(courseId) {
+function StudyMaterialSection(courseId,course) {
     const[studyTypeContent,setStudyTypeContent]=useState();
     const MaterialList=[
         {
@@ -49,6 +49,8 @@ const GetStudyMaterial=async()=>{
             {MaterialList.map((item, index)=>(
                 <MaterialCardItem item={item} key={index}
                     studyTypeContent={studyTypeContent}
+                    course={course}
+                    refreshData={GetStudyMaterial}
                 />
             ))}
         </div>
