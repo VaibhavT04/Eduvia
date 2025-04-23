@@ -1,13 +1,16 @@
 "use client"
 import DashboardHeader from '@/app/dashboard/_components/DashboardHeader';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react' 
 import StudyMaterialSection from './_components/StudyMaterialSection';
 import axios from 'axios';
 import CourseIntrocard from './_components/CourseIntrocard';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 
 function Course() {
     const {courseId} = useParams(); 
+    const router = useRouter();
     const [course, setCourse] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -35,11 +38,23 @@ function Course() {
         }
     }
 
+    const handleBackToDashboard = () => {
+        router.push('/dashboard');
+    };
+
     if (loading) {
         return (
             <div>
                 <DashboardHeader/>
                 <div className="mt-10 mx-10 md:mx-36 lg:px-60">
+                    <Button 
+                        variant="ghost" 
+                        className="mb-4" 
+                        onClick={handleBackToDashboard}
+                    >
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Back to Dashboard
+                    </Button>
                     <p>Loading course...</p>
                 </div>
             </div>
@@ -51,6 +66,14 @@ function Course() {
             <div>
                 <DashboardHeader/>
                 <div className="mt-10 mx-10 md:mx-36 lg:px-60">
+                    <Button 
+                        variant="ghost" 
+                        className="mb-4" 
+                        onClick={handleBackToDashboard}
+                    >
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Back to Dashboard
+                    </Button>
                     <p className="text-red-500">Error: {error}</p>
                 </div>
             </div>
@@ -62,6 +85,14 @@ function Course() {
             <div>
                 <DashboardHeader/>
                 <div className="mt-10 mx-10 md:mx-36 lg:px-60">
+                    <Button 
+                        variant="ghost" 
+                        className="mb-4" 
+                        onClick={handleBackToDashboard}
+                    >
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Back to Dashboard
+                    </Button>
                     <p>Course not found</p>
                 </div>
             </div>
@@ -71,16 +102,23 @@ function Course() {
     return (
         <div>
             <div className='mt-10 mx-10 md:mx-36 lg:px-60'>
+                {/* Back button */}
+                <Button 
+                    variant="ghost" 
+                    className="mb-4" 
+                    onClick={handleBackToDashboard}
+                >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back to Dashboard
+                </Button>
+                
                 {/* Course Intro */}
                 <CourseIntrocard course={course}/>
 
                 {/* Study Material Options */}
-
                 <StudyMaterialSection courseId={courseId} course={course}/>
 
                 {/* Chapter lists */}
-
-                
             </div>
         </div>
     )

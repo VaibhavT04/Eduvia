@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation';
 import axios from 'axios';  
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import { ArrowLeft, ChevronLeft } from 'lucide-react';
 
 function ViewNotes() {
     const {courseId} = useParams();
@@ -11,7 +12,7 @@ function ViewNotes() {
     const [stepCount, setStepCount] = useState(0);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const route = useRouter();
+    const router = useRouter();
 
     useEffect(() => {
         GetNotes();
@@ -42,12 +43,48 @@ function ViewNotes() {
         }
     }
 
+    const goBackToCourse = () => {
+        router.push(`/course/${courseId}`);
+    };
+
+    const goBackToDashboard = () => {
+        router.push('/dashboard');
+    };
+
     if (loading) {
-        return <div>Loading notes...</div>;
+        return (
+            <div>
+                <div className="p-4">
+                    <Button 
+                        variant="ghost" 
+                        className="mb-4" 
+                        onClick={goBackToDashboard}
+                    >
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Back to Dashboard
+                    </Button>
+                </div>
+                <div className="text-center">Loading notes...</div>
+            </div>
+        );
     }
 
     if (error) {
-        return <div>Error: {error}</div>;
+        return (
+            <div>
+                <div className="p-4">
+                    <Button 
+                        variant="ghost" 
+                        className="mb-4" 
+                        onClick={goBackToDashboard}
+                    >
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Back to Dashboard
+                    </Button>
+                </div>
+                <div className="text-center">Error: {error}</div>
+            </div>
+        );
     }
 
     const formatContent = (content) => {
@@ -70,6 +107,28 @@ function ViewNotes() {
 
     return notes&&(
         <div>
+            <div className="p-4">
+                <div className="flex justify-between items-center">
+                    <Button 
+                        variant="ghost" 
+                        className="mb-4" 
+                        onClick={goBackToDashboard}
+                    >
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Back to Dashboard
+                    </Button>
+                    
+                    <Button 
+                        variant="ghost" 
+                        className="mb-4" 
+                        onClick={goBackToCourse}
+                    >
+                        <ChevronLeft className="h-4 w-4 mr-2" />
+                        Back to Course
+                    </Button>
+                </div>
+            </div>
+            
             <div className='flex items-center gap-5 m-10'>
                 {stepCount != 0 && <Button variant='outline' size='sm' onClick={()=>setStepCount(stepCount-1)}>Previous</Button>}
                 {Array.isArray(notes) && notes.map((item, index) => (
@@ -91,7 +150,10 @@ function ViewNotes() {
                 {notes?.length==stepCount&&<div className='flex items-center gap-10 flex-col justify-center'>
 
                     <h2>End of Notes</h2>
-                    <Button onClick={()=>route.back()}>Go to Course</Button>
+                    <div className="flex gap-4">
+                        <Button onClick={goBackToCourse}>Go to Course</Button>
+                        <Button variant="outline" onClick={goBackToDashboard}>Back to Dashboard</Button>
+                    </div>
                 </div>}
             </div>
         </div>
