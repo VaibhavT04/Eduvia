@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation";
 import { Progress } from "@/components/ui/progress";
 import Link from "next/link"; // ✅ Use Next.js Link
 import Image from 'next/image'
+import { useContext } from "react";
+import { CourseCountContext } from "@/app/_context/CourseCountContext";
 
 
 function SideBar() {
@@ -27,7 +29,9 @@ function SideBar() {
     },
   ];
 
-  const path = usePathname(); // ✅ Next.js Router
+  const {totalCourse,setTotalCourse} = useContext(CourseCountContext);
+
+  const path = usePathname(); 
 
   return (
     <div className="h-screen shadow-md p-3">
@@ -56,11 +60,11 @@ function SideBar() {
       </div>
 
       <div className="border p-3 bg-slate-100 rounded-lg absolute bottom-10 w-[87%]">
-        <h2 className="text-lg mb-2">Available Credits: 5</h2>
-        <Progress value={30} />
-        <h2>1 out of 5 Credits used</h2>
+        <h2 className="text-lg mb-2">Available Credits: {(5-totalCourse)}</h2>
+        <Progress value={(totalCourse/5)*100} />
+        <h2 className='text-sm'>{totalCourse} out of 5 Credits used</h2>
 
-        <Link href="/dashboard/upgrade" className="text-primary text-xs mt-3 block">
+        <Link href="/dashboard/upgrade" className="text-primary text-xs mt-3 block" >
           Upgrade to create more
         </Link>
       </div>

@@ -6,34 +6,33 @@ import { useUser } from "@clerk/nextjs";
 import { RefreshCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { CourseCountContext } from "@/app/_context/CourseCountContext";
+import { useContext } from "react";
 
 function CourseList(){
     const {user}=useUser();
     const [courseList,setCourseList]=useState([]);
     const [loading,setLoading]=useState(false);
+    const {totalCourse, setTotalCourse} = useContext(CourseCountContext);
     
     useEffect(()=>{
         user&&GetCourseList();
     },[user])
 
-    const GetCourseList=async()=>{
-        try {
-            setLoading(true);
-            const result = await axios.post("/api/courses",
-                {createdBy:user?.primaryEmailAddress?.emailAddress});
+    const GetCourseList = async() => {
+        setLoading(true);
+        const result = await axios.post("/api/courses", 
+            {createdBy: user?.primaryEmailAddress?.emailAddress});
             
-            if (result.data.success) {
-                setCourseList(result.data.result);
-            } else {
-                toast.error(result.data.message || "Failed to fetch courses");
-            }
-        } catch (error) {
-            console.error("Error fetching courses:", error);
-            toast.error(error.response?.data?.message || "Failed to fetch courses");
-        } finally {
-            setLoading(false);
+        if (result.data.success) {
+            setCourseList(result.data.result);
+        } else {
+            toast.error(result.data.message || "Failed to fetch courses");
         }
-    }   
+        
+        setLoading(false);
+        setTotalCourse(result.data.result?.length);
+    }
     
     return(
         <div>
