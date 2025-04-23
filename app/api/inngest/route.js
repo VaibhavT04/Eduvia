@@ -11,8 +11,7 @@ export const { GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS } = serve({
     helloWorld,
     CreateNewUser,
     GenerateNotes,
-    GenerateStudyTypeContent,
-    PricingDialog
+    GenerateStudyTypeContent
   ],
 });
 

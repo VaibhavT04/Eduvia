@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import SelectOption from "./_components/SelectOption";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import TopicInput from "./_components/TopicInput";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
@@ -9,6 +9,7 @@ import { useUser } from "@clerk/nextjs";
 import { Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { CourseCountContext } from "@/app/_context/CourseCountContext";
 
 function Create() {
   const [step, setStep] = useState(0);
@@ -22,6 +23,38 @@ function Create() {
   const { user, isLoaded: userLoaded } = useUser();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const [courses, setCourses] = useState([]);
+  const [hasAvailableCredits, setHasAvailableCredits] = useState(true);
+
+  // Check for available credits
+  useEffect(() => {
+    if (user) {
+      const checkCredits = async () => {
+        try {
+          const result = await axios.post("/api/courses", {
+            createdBy: user?.primaryEmailAddress?.emailAddress,
+          });
+          
+          if (result.data.success) {
+            const courseCount = result.data.result?.length || 0;
+            setCourses(result.data.result || []);
+            setHasAvailableCredits(courseCount < 5);
+            
+            if (courseCount >= 5) {
+              setError("You've used all your available credits. Please upgrade to create more courses.");
+              setTimeout(() => {
+                router.push("/dashboard/upgrade");
+              }, 3000);
+            }
+          }
+        } catch (error) {
+          console.error("Error checking credits:", error);
+        }
+      };
+      
+      checkCredits();
+    }
+  }, [user, router]);
 
   // Load form data from localStorage if available
   useEffect(() => {
@@ -54,6 +87,12 @@ function Create() {
   };
 
   const validateStep = () => {
+    if (!hasAvailableCredits) {
+      setError("You've used all your available credits. Please upgrade to create more courses.");
+      router.push("/dashboard/upgrade");
+      return false;
+    }
+
     if (step === 0 && !formData.studyType) {
       setError("Please select a study type to continue");
       return false;
@@ -86,6 +125,12 @@ function Create() {
 
     if (!userLoaded || !user) {
       setError("Please sign in to generate a course outline");
+      return;
+    }
+
+    if (!hasAvailableCredits) {
+      setError("You've used all your available credits. Please upgrade to create more courses.");
+      router.push("/dashboard/upgrade");
       return;
     }
 
@@ -182,54 +227,69 @@ function Create() {
       )}
 
       <div className="mt-10 w-full">
-        {step === 0 ? (
-          <SelectOption
-            selectedStudyType={(value) => handleUserInput("studyType", value)}
-            initialValue={formData.studyType}
-          />
+        {hasAvailableCredits ? (
+          step === 0 ? (
+            <SelectOption
+              selectedStudyType={(value) => handleUserInput("studyType", value)}
+              initialValue={formData.studyType}
+            />
+          ) : (
+            <TopicInput
+              setTopic={(value) => handleUserInput("topic", value)}
+              setDifficultyLevel={(value) => handleUserInput("difficultyLevel", value)}
+              initialTopic={formData.topic}
+              initialDifficulty={formData.difficultyLevel}
+            />
+          )
         ) : (
-          <TopicInput
-            setTopic={(value) => handleUserInput("topic", value)}
-            setDifficultyLevel={(value) => handleUserInput("difficultyLevel", value)}
-            initialTopic={formData.topic}
-            initialDifficulty={formData.difficultyLevel}
-          />
-        )}
-      </div>
-
-      <div className="flex justify-between w-full mt-32">
-        {step !== 0 ? (
-          <Button
-            variant="outline"
-            onClick={handlePrevious}
-            disabled={loading}
-            aria-label="Go to previous step"
-          >
-            Previous
-          </Button>
-        ) : (
-          <div className="invisible">
-            <Button variant="outline">Previous</Button>
+          <div className="text-center p-6 bg-yellow-50 rounded-md border border-yellow-200">
+            <h3 className="text-lg font-semibold mb-2">Credit Limit Reached</h3>
+            <p>You've used all 5 of your available credits. Please upgrade to create more courses.</p>
+            <Button 
+              onClick={() => router.push("/dashboard/upgrade")} 
+              className="mt-4"
+            >
+              Upgrade Now
+            </Button>
           </div>
         )}
-
-        {step === 0 ? (
-          <Button onClick={handleNext} aria-label="Go to next step">
-            Next
-          </Button>
-        ) : (
-          <Button
-            onClick={GenerateCourseOutline}
-            disabled={loading || !userLoaded}
-            className={loading ? "cursor-not-allowed" : ""}
-            aria-busy={loading.toString()} // Convert to string for accessibility
-            aria-label="Generate course outline"
-          >
-            {loading && <Loader className="animate-spin mr-2" />}
-            {loading ? "Generating..." : "Generate"}
-          </Button>
-        )}
       </div>
+
+      {hasAvailableCredits && (
+        <div className="flex justify-between w-full mt-32">
+          {step !== 0 ? (
+            <Button
+              variant="outline"
+              onClick={handlePrevious}
+              disabled={loading}
+              aria-label="Go to previous step"
+            >
+              Previous
+            </Button>
+          ) : (
+            <div className="invisible">
+              <Button variant="outline">Previous</Button>
+            </div>
+          )}
+
+          {step === 0 ? (
+            <Button onClick={handleNext} aria-label="Go to next step">
+              Next
+            </Button>
+          ) : (
+            <Button
+              onClick={GenerateCourseOutline}
+              disabled={loading || !userLoaded}
+              className={loading ? "cursor-not-allowed" : ""}
+              aria-busy={loading.toString()} // Convert to string for accessibility
+              aria-label="Generate course outline"
+            >
+              {loading && <Loader className="animate-spin mr-2" />}
+              {loading ? "Generating..." : "Generate"}
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

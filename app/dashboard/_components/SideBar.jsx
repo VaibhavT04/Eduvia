@@ -29,9 +29,14 @@ function SideBar() {
     },
   ];
 
-  const {totalCourse,setTotalCourse} = useContext(CourseCountContext);
-
+  const {totalCourse, setTotalCourse} = useContext(CourseCountContext);
   const path = usePathname(); 
+  
+  // Calculate available credits (max 5)
+  const maxCredits = 5;
+  const usedCredits = Math.min(totalCourse, maxCredits);
+  const availableCredits = Math.max(0, maxCredits - usedCredits);
+  const progressPercentage = (usedCredits / maxCredits) * 100;
 
   return (
     <div className="h-screen shadow-md p-3">
@@ -42,7 +47,7 @@ function SideBar() {
       {/* Menu Items */}
       <div className="mt-3">
         <Link href={'/create'}>
-        <Button className="w-full">Create New</Button>
+        <Button className="w-full" disabled={availableCredits === 0}>Create New</Button>
         </Link>
         <div className="mt-5">
           {MenuList.map((menu, index) => (
@@ -60,13 +65,15 @@ function SideBar() {
       </div>
 
       <div className="border p-3 bg-slate-100 rounded-lg absolute bottom-10 w-[87%]">
-        <h2 className="text-lg mb-2">Available Credits: {(5-totalCourse)}</h2>
-        <Progress value={(totalCourse/5)*100} />
-        <h2 className='text-sm'>{totalCourse} out of 5 Credits used</h2>
+        <h2 className="text-lg mb-2">Available Credits: {availableCredits}</h2>
+        <Progress value={progressPercentage} />
+        <h2 className='text-sm'>{usedCredits} out of {maxCredits} Credits used</h2>
 
-        <Link href="/dashboard/upgrade" className="text-primary text-xs mt-3 block" >
-          Upgrade to create more
-        </Link>
+        {availableCredits === 0 && (
+          <Link href="/dashboard/upgrade" className="text-primary text-xs mt-3 block" >
+            Upgrade to create more
+          </Link>
+        )}
       </div>
     </div>
   );
